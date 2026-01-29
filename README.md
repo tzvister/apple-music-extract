@@ -26,7 +26,7 @@
 Run with no arguments to launch the **interactive TUI**:
 
 ```bash
-npx github:tzvister/apple-music-extract
+npx -y github:tzvister/apple-music-extract
 ```
 
 The TUI guides you through selecting extraction type, options, and output destination.
@@ -63,13 +63,13 @@ Pass any argument to use CLI mode directly:
 
 ```bash
 # Extract artists to stdout
-npx github:tzvister/apple-music-extract --type artists
+npx -y github:tzvister/apple-music-extract --type artists
 
 # Pipe to file
-npx github:tzvister/apple-music-extract --type artists > artists.txt
+npx -y github:tzvister/apple-music-extract --type artists > artists.txt
 
 # Write directly to CSV file
-npx github:tzvister/apple-music-extract --out artists.csv
+npx -y github:tzvister/apple-music-extract --out artists.csv
 ```
 
 ## Requirements
