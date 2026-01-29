@@ -1,4 +1,25 @@
 import { writeFileSync } from 'node:fs';
+import chalk from 'chalk';
+
+// Consistent color scheme for column types
+const COLUMN_COLORS = {
+  artist: chalk.magenta,
+  album: chalk.yellow,
+  track: chalk.green,
+  playlist: chalk.cyan,
+  title: chalk.green,  // alias for track
+  // Separator color
+  separator: chalk.dim
+};
+
+/**
+ * Get color function for a column type
+ * @param {string} columnName - The column name
+ * @returns {Function} Chalk color function
+ */
+function getColumnColor(columnName) {
+  return COLUMN_COLORS[columnName.toLowerCase()] || chalk.white;
+}
 
 /**
  * Escape a single CSV field according to RFC4180
@@ -148,4 +169,37 @@ export function writeCSV(filePath, artists) {
  */
 export function writeToStdout(content) {
   process.stdout.write(content);
+}
+
+/**
+ * Generate colorized single-column data for terminal display
+ * @param {string[]} values - Array of values
+ * @param {string} columnType - The column type (artist, album, track, playlist)
+ * @returns {string} Colorized output
+ */
+export function generateColorizedSingleColumn(values, columnType) {
+  const colorFn = getColumnColor(columnType);
+  const rows = values.map(v => colorFn(v));
+  return rows.join('\n') + '\n';
+}
+
+/**
+ * Generate colorized multi-column data for terminal display
+ * @param {Object[]} rows - Array of row objects
+ * @param {string[]} headers - Array of column header names
+ * @returns {string} Colorized output
+ */
+export function generateColorizedMultiColumn(rows, headers) {
+  const separator = COLUMN_COLORS.separator(' · ');
+  
+  const dataLines = rows.map(row => {
+    const coloredFields = headers.map(header => {
+      const colorFn = getColumnColor(header);
+      const value = row[header] || '';
+      return colorFn(value);
+    });
+    return coloredFields.join(separator);
+  });
+  
+  return dataLines.join('\n') + '\n';
 }

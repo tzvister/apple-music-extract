@@ -25,7 +25,9 @@ import {
   writeMultiColumnCSV,
   writeToStdout,
   generateSingleColumnData,
-  generateMultiColumnData
+  generateMultiColumnData,
+  generateColorizedSingleColumn,
+  generateColorizedMultiColumn
 } from './csv-writer.js';
 
 // Valid extraction types
@@ -346,7 +348,7 @@ async function handleArtists(outPath, options) {
     writeSingleColumnCSV(outPath, uniqueArtists, 'artist');
     console.error(`Exported ${uniqueArtists.length} unique artists to ${outPath}`);
   } else {
-    writeToStdout(generateSingleColumnData(uniqueArtists));
+    writeToStdout(generateColorizedSingleColumn(uniqueArtists, 'artist'));
     console.error(`Exported ${uniqueArtists.length} unique artists`);
   }
   
@@ -373,7 +375,7 @@ async function handleAlbums(outPath, options) {
     writeSingleColumnCSV(outPath, uniqueAlbums, 'album');
     console.error(`Exported ${uniqueAlbums.length} unique albums to ${outPath}`);
   } else {
-    writeToStdout(generateSingleColumnData(uniqueAlbums));
+    writeToStdout(generateColorizedSingleColumn(uniqueAlbums, 'album'));
     console.error(`Exported ${uniqueAlbums.length} unique albums`);
   }
   process.exit(ExitCodes.SUCCESS);
@@ -399,7 +401,7 @@ async function handleTracks(outPath, options) {
     writeSingleColumnCSV(outPath, uniqueTracks, 'track');
     console.error(`Exported ${uniqueTracks.length} unique tracks to ${outPath}`);
   } else {
-    writeToStdout(generateSingleColumnData(uniqueTracks));
+    writeToStdout(generateColorizedSingleColumn(uniqueTracks, 'track'));
     console.error(`Exported ${uniqueTracks.length} unique tracks`);
   }
   process.exit(ExitCodes.SUCCESS);
@@ -425,7 +427,7 @@ async function handlePlaylists(outPath, options) {
     writeSingleColumnCSV(outPath, uniquePlaylists, 'playlist');
     console.error(`Exported ${uniquePlaylists.length} playlists to ${outPath}`);
   } else {
-    writeToStdout(generateSingleColumnData(uniquePlaylists));
+    writeToStdout(generateColorizedSingleColumn(uniquePlaylists, 'playlist'));
     console.error(`Exported ${uniquePlaylists.length} playlists`);
   }
   process.exit(ExitCodes.SUCCESS);
@@ -449,7 +451,7 @@ async function handlePlaylistTracks(outPath, options) {
     writeMultiColumnCSV(outPath, prepared, headers);
     console.error(`Exported ${prepared.length} playlist tracks to ${outPath}`);
   } else {
-    writeToStdout(generateMultiColumnData(prepared, headers));
+    writeToStdout(generateColorizedMultiColumn(prepared, headers));
     console.error(`Exported ${prepared.length} playlist tracks`);
   }
   process.exit(ExitCodes.SUCCESS);
@@ -473,7 +475,7 @@ async function handleDetailed(outPath, options) {
     writeMultiColumnCSV(outPath, prepared, headers);
     console.error(`Exported ${prepared.length} tracks to ${outPath}`);
   } else {
-    writeToStdout(generateMultiColumnData(prepared, headers));
+    writeToStdout(generateColorizedMultiColumn(prepared, headers));
     console.error(`Exported ${prepared.length} tracks`);
   }
   process.exit(ExitCodes.SUCCESS);

@@ -27,7 +27,9 @@ import {
   writeMultiColumnCSV,
   writeToStdout,
   generateSingleColumnData,
-  generateMultiColumnData
+  generateMultiColumnData,
+  generateColorizedSingleColumn,
+  generateColorizedMultiColumn
 } from './csv-writer.js';
 
 // Type definitions
@@ -352,14 +354,16 @@ function writeOutput(type, data, outPath, options) {
     if (outPath) {
       writeMultiColumnCSV(outPath, data, headers);
     } else {
-      writeToStdout(generateMultiColumnData(data, headers));
+      // Colorized output for terminal
+      writeToStdout(generateColorizedMultiColumn(data, headers));
     }
   } else {
     const header = typeInfo.header;
     if (outPath) {
       writeSingleColumnCSV(outPath, data, header);
     } else {
-      writeToStdout(generateSingleColumnData(data));
+      // Colorized output for terminal
+      writeToStdout(generateColorizedSingleColumn(data, header));
     }
   }
 }
