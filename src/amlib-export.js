@@ -435,7 +435,7 @@ async function handlePlaylistTracks(outPath, options) {
   }
   
   const prepared = preparePlaylistTracks(playlistTracks, { sort: options.sort });
-  const headers = ['playlist', 'track', 'artist'];
+  const headers = ['playlist', 'artist', 'album', 'track'];
   
   if (outPath) {
     writeMultiColumnCSV(outPath, prepared, headers);
@@ -459,7 +459,7 @@ async function handleDetailed(outPath, options) {
   }
   
   const prepared = prepareDetailedTracks(tracks, { sort: options.sort });
-  const headers = ['title', 'artist', 'album_artist', 'album'];
+  const headers = ['artist', 'album', 'track'];
   
   if (outPath) {
     writeMultiColumnCSV(outPath, prepared, headers);

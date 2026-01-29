@@ -216,13 +216,14 @@ export async function extractPlaylistTracks(options = {}) {
     return { playlistTracks: [], exitCode: result.exitCode, error: result.error };
   }
   
-  // Parse the delimited format: playlist|||track|||artist
+  // Parse the delimited format: playlist|||track|||artist|||album
   const playlistTracks = result.lines.map(line => {
-    const [playlist, track, artist] = line.split('|||');
+    const [playlist, track, artist, album] = line.split('|||');
     return {
       playlist: playlist || '',
       track: track || '',
-      artist: artist || ''
+      artist: artist || '',
+      album: album || ''
     };
   });
   

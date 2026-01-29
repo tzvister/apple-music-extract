@@ -119,14 +119,14 @@ By default, output goes to **stdout**. Use `--out` to write to a file.
 
 ### Extraction Types
 
-| Type | Description | Output |
-|------|-------------|--------|
-| `artists` | Unique artist names (default) | Single column |
-| `albums` | Unique album names | Single column |
-| `tracks` | Unique track titles | Single column |
-| `playlists` | Playlist names only | Single column |
-| `playlist-tracks` | Playlists with their tracks | Multi-column |
-| `detailed` | Full track metadata | Multi-column |
+| Type | Description | Output Format |
+|------|-------------|---------------|
+| `artists` | Unique artist names (default) | Artist |
+| `albums` | Unique albums with artist | Artist - Album |
+| `tracks` | Unique tracks with artist | Artist - Track |
+| `playlists` | Playlist names only | Playlist |
+| `playlist-tracks` | Playlists with their tracks | Playlist, Artist, Album, Track |
+| `detailed` | Full library listing | Artist, Album, Track |
 
 ### Options
 
@@ -174,49 +174,56 @@ amlib-export help playlist-tracks
 
 **Note:** When outputting to stdout, only data is shown (no headers). Files include capitalized headers.
 
-### Single-column (artists, albums, tracks, playlists)
+### Artists
 
-Stdout:
 ```
 Taylor Swift
 The Beatles
 Beyoncé
 ```
 
-CSV file:
-```csv
-Artist
-Taylor Swift
-The Beatles
-Beyoncé
+### Albums (Artist - Album)
+
+```
+Queen - A Night at the Opera
+The Beatles - Abbey Road
+Taylor Swift - 1989
 ```
 
-### Playlist tracks
+### Tracks (Artist - Track)
 
-Stdout:
 ```
-Chill Vibes,Weightless,Marconi Union
-Chill Vibes,Sunset Lover,Petit Biscuit
-```
-
-CSV file:
-```csv
-Playlist,Track,Artist
-Chill Vibes,Weightless,Marconi Union
-Chill Vibes,Sunset Lover,Petit Biscuit
+Queen - Bohemian Rhapsody
+The Beatles - Hey Jude
+Taylor Swift - Shake It Off
 ```
 
-### Detailed
+### Playlist Tracks (Playlist, Artist, Album, Track)
 
-Stdout:
 ```
-Bohemian Rhapsody,Queen,Queen,A Night at the Opera
+Chill Vibes,Marconi Union,Weightless,Weightless
+Chill Vibes,Petit Biscuit,Presence,Sunset Lover
 ```
 
 CSV file:
 ```csv
-Title,Artist,Album Artist,Album
-Bohemian Rhapsody,Queen,Queen,A Night at the Opera
+Playlist,Artist,Album,Track
+Chill Vibes,Marconi Union,Weightless,Weightless
+Chill Vibes,Petit Biscuit,Presence,Sunset Lover
+```
+
+### Detailed (Artist, Album, Track)
+
+```
+Queen,A Night at the Opera,Bohemian Rhapsody
+The Beatles,Abbey Road,Come Together
+```
+
+CSV file:
+```csv
+Artist,Album,Track
+Queen,A Night at the Opera,Bohemian Rhapsody
+The Beatles,Abbey Road,Come Together
 ```
 
 ## Permissions

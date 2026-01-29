@@ -1,6 +1,6 @@
 -- Extract playlists with their tracks from Music.app
 -- Outputs one track per line with fields separated by |||
--- Format: playlist_name|||track_title|||artist
+-- Format: playlist_name|||track_title|||artist|||album
 
 tell application "Music"
     try
@@ -12,7 +12,8 @@ tell application "Music"
             repeat with t in trackList
                 set trackTitle to name of t
                 set trackArtist to artist of t
-                set trackData to playlistName & "|||" & trackTitle & "|||" & trackArtist
+                set trackAlbum to album of t
+                set trackData to playlistName & "|||" & trackTitle & "|||" & trackArtist & "|||" & trackAlbum
                 set end of outputList to trackData
             end repeat
         end repeat

@@ -58,13 +58,13 @@ const TYPES = {
   'playlist-tracks': {
     name: 'Playlist Tracks',
     description: 'Playlists with their track listings',
-    headers: ['playlist', 'track', 'artist'],
+    headers: ['playlist', 'artist', 'album', 'track'],
     multiColumn: true
   },
   detailed: {
     name: 'Detailed',
-    description: 'Full track metadata (title, artist, album artist, album)',
-    headers: ['title', 'artist', 'album_artist', 'album'],
+    description: 'Full library: Artist, Album, Track',
+    headers: ['artist', 'album', 'track'],
     multiColumn: true
   }
 };

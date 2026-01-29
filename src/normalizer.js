@@ -104,17 +104,25 @@ export function normalizeAlbums(tracks, options = {}) {
 }
 
 /**
- * Normalize and deduplicate track titles from track data
+ * Normalize and deduplicate tracks from track data
+ * Format: "Artist - Track" or just "Track" if no artist
  * @param {Object[]} tracks - Array of track objects with title property
  * @param {Object} options - Normalizer options
- * @returns {string[]} Array of unique track titles
+ * @returns {string[]} Array of unique track entries
  */
 export function normalizeTracks(tracks, options = {}) {
   const normalizer = createNormalizer(options);
   
   for (const track of tracks) {
     if (track.title) {
-      normalizer.add(track.title);
+      const artist = (track.artist || track.albumArtist || '').trim();
+      const title = track.title.trim();
+      
+      if (artist) {
+        normalizer.add(`${artist} - ${title}`);
+      } else {
+        normalizer.add(title);
+      }
     }
   }
   
@@ -168,23 +176,29 @@ export function normalizeArtistsFromTracks(tracks, options = {}) {
 
 /**
  * Prepare detailed track data for CSV export
+ * Columns: Artist, Album, Track
  * @param {Object[]} tracks - Array of track objects
  * @param {Object} options - Options
- * @param {boolean} [options.sort=false] - Sort by title
+ * @param {boolean} [options.sort=false] - Sort by artist, then album, then track
  * @returns {Object[]} Array of track objects ready for CSV
  */
 export function prepareDetailedTracks(tracks, options = {}) {
   const { sort = false } = options;
   
   let result = tracks.map(track => ({
-    title: (track.title || '').trim(),
-    artist: (track.artist || '').trim(),
-    album_artist: (track.albumArtist || '').trim(),
-    album: (track.album || '').trim()
+    artist: (track.artist || track.albumArtist || '').trim(),
+    album: (track.album || '').trim(),
+    track: (track.title || '').trim()
   }));
   
   if (sort) {
-    result.sort((a, b) => a.title.localeCompare(b.title));
+    result.sort((a, b) => {
+      const artistCmp = a.artist.localeCompare(b.artist);
+      if (artistCmp !== 0) return artistCmp;
+      const albumCmp = a.album.localeCompare(b.album);
+      if (albumCmp !== 0) return albumCmp;
+      return a.track.localeCompare(b.track);
+    });
   }
   
   return result;
@@ -192,9 +206,10 @@ export function prepareDetailedTracks(tracks, options = {}) {
 
 /**
  * Prepare playlist tracks data for CSV export
+ * Columns: Playlist, Artist, Album, Track
  * @param {Object[]} playlistTracks - Array of playlist track objects
  * @param {Object} options - Options
- * @param {boolean} [options.sort=false] - Sort by playlist name, then track
+ * @param {boolean} [options.sort=false] - Sort by playlist name, then artist, then track
  * @returns {Object[]} Array of objects ready for CSV
  */
 export function preparePlaylistTracks(playlistTracks, options = {}) {
@@ -202,14 +217,17 @@ export function preparePlaylistTracks(playlistTracks, options = {}) {
   
   let result = playlistTracks.map(pt => ({
     playlist: (pt.playlist || '').trim(),
-    track: (pt.track || '').trim(),
-    artist: (pt.artist || '').trim()
+    artist: (pt.artist || '').trim(),
+    album: (pt.album || '').trim(),
+    track: (pt.track || '').trim()
   }));
   
   if (sort) {
     result.sort((a, b) => {
       const playlistCmp = a.playlist.localeCompare(b.playlist);
       if (playlistCmp !== 0) return playlistCmp;
+      const artistCmp = a.artist.localeCompare(b.artist);
+      if (artistCmp !== 0) return artistCmp;
       return a.track.localeCompare(b.track);
     });
   }
