@@ -9,13 +9,13 @@ A minimal macOS command-line tool that exports unique artist names from your App
 If you have Node.js installed, just run:
 
 ```bash
-npx github:YOUR_USERNAME/apple-music-extract
+npx github:tzvister/apple-music-extract
 ```
 
 This downloads and runs the tool in one command. Add `--sort` to sort alphabetically:
 
 ```bash
-npx github:YOUR_USERNAME/apple-music-extract -- --sort --out ~/Desktop/artists.csv
+npx github:tzvister/apple-music-extract -- --sort --out ~/Desktop/artists.csv
 ```
 
 ### Option 2: Download and run single file
