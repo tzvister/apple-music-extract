@@ -2,6 +2,8 @@
 
 A minimal macOS command-line tool that exports unique artist names from your Apple Music Library to a CSV file.
 
+**How it works:** The tool uses AppleScript to ask Music.app for the artist name of every track in your library, then deduplicates and exports to CSV. No Apple ID or network access required.
+
 ## Quick Start
 
 ### Option 1: Run with npx (easiest)
@@ -84,10 +86,6 @@ Click **OK** to allow access.
 2. Find your terminal app (Terminal, iTerm, Warp, etc.)
 3. Enable the toggle for **Music**
 4. Run the command again
-
-## How It Works
-
-The tool uses AppleScript to ask Music.app for the artist name of every track in your library, then deduplicates and exports to CSV. No Apple ID or network access required.
 
 ## License
 
