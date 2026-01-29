@@ -57,14 +57,25 @@ node amlib-export-artists.js help [TYPE]
 ### Options
 
 ```
---type, -t <type>         Extraction type (default: artists)
---out, -o <path>          Output CSV file path
---sort, -s                Sort output alphabetically
---limit, -l <N>           Stop after N items (for debugging)
---no-trim                 Disable whitespace trimming
---fallback-album-artist   Use album artist when artist is empty (artists only)
---help, -h                Show help message
+--type, -t <type>    Extraction type (default: artists)
+--out, -o <path>     Output CSV file path
+--sort, -s           Sort output alphabetically
+--strict             Disable album artist fallback (see below)
+--help, -h           Show help message
 ```
+
+**Advanced options:**
+
+```
+--limit, -l <N>      Stop after N items (for debugging large libraries)
+--no-trim            Keep leading/trailing whitespace in values
+```
+
+### Artist Extraction Behavior
+
+When extracting artists (`--type artists`), the tool automatically uses the **album artist** as a fallback when a track's artist field is empty. This is useful for compilation albums where individual tracks may not have an artist set.
+
+Use `--strict` if you only want the exact track artist field (no fallback).
 
 ### Examples
 

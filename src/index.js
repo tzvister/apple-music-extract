@@ -30,9 +30,9 @@ const VALID_TYPES = ['artists', 'albums', 'tracks', 'playlists', 'playlist-track
 // Type-specific help information
 const TYPE_HELP = {
   artists: {
-    description: 'Extract unique artist names from your library',
+    description: 'Extract unique artist names from your library. Uses album artist as fallback when track artist is empty.',
     output: 'Single-column CSV with header "artist"',
-    flags: ['--sort', '--out', '--fallback-album-artist'],
+    flags: ['--sort', '--out', '--strict'],
     example: 'amlib-export --type artists --sort --out artists.csv'
   },
   albums: {
@@ -79,7 +79,7 @@ function parseArgs(args) {
     sort: false,
     limit: null,
     noTrim: false,
-    fallbackAlbumArtist: false,
+    strict: false,  // When true, disables album artist fallback
     help: false,
     helpType: null
   };
@@ -135,8 +135,8 @@ function parseArgs(args) {
         options.noTrim = true;
         break;
       
-      case '--fallback-album-artist':
-        options.fallbackAlbumArtist = true;
+      case '--strict':
+        options.strict = true;
         break;
       
       case '--help':
@@ -189,13 +189,15 @@ TYPES:
   detailed         Full track data as multi-column CSV
 
 OPTIONS:
-  --type, -t <type>         Extraction type (default: artists)
-  --out, -o <path>          Output CSV file path
-  --sort, -s                Sort output alphabetically
-  --limit, -l <N>           Stop after N items (for debugging)
-  --no-trim                 Disable whitespace trimming
-  --fallback-album-artist   Use album artist when artist is empty (artists type only)
-  --help, -h                Show this help message
+  --type, -t <type>    Extraction type (default: artists)
+  --out, -o <path>     Output CSV file path
+  --sort, -s           Sort output alphabetically
+  --strict             Disable album artist fallback (artists type only)
+  --help, -h           Show this help message
+
+ADVANCED OPTIONS:
+  --limit, -l <N>      Stop after N items (for debugging)
+  --no-trim            Disable whitespace trimming (keeps leading/trailing spaces)
 
 EXAMPLES:
   amlib-export                                    # Export artists to artists.csv
@@ -291,27 +293,15 @@ async function main() {
 
 /**
  * Handle artists extraction
+ * By default, uses album artist as fallback when track artist is empty.
+ * Use --strict to disable this behavior.
  */
 async function handleArtists(outPath, options) {
-  if (options.fallbackAlbumArtist) {
-    // Need full track data for album artist fallback
-    const { tracks, exitCode, error } = await extractTracks({ limit: options.limit });
-    
-    if (exitCode !== ExitCodes.SUCCESS) {
-      console.error(getErrorMessage(exitCode, error));
-      process.exit(exitCode);
-    }
-    
-    const uniqueArtists = normalizeArtistsFromTracks(tracks, {
-      fallbackAlbumArtist: true,
-      noTrim: options.noTrim,
-      sort: options.sort
-    });
-    
-    writeSingleColumnCSV(outPath, uniqueArtists, 'artist');
-    console.error(`Exported ${uniqueArtists.length} unique artists to ${outPath}`);
-  } else {
-    // Original artist extraction
+  // Default behavior: use album artist fallback (requires full track data)
+  // --strict: only use track artist field (faster, uses simple extraction)
+  
+  if (options.strict) {
+    // Strict mode: only use track artist field
     const { artists, exitCode, error } = await extractArtists({ limit: options.limit });
     
     if (exitCode !== ExitCodes.SUCCESS) {
@@ -325,6 +315,23 @@ async function handleArtists(outPath, options) {
     }
     
     const uniqueArtists = normalizer.getUniqueValues();
+    writeSingleColumnCSV(outPath, uniqueArtists, 'artist');
+    console.error(`Exported ${uniqueArtists.length} unique artists to ${outPath}`);
+  } else {
+    // Default: use album artist fallback when track artist is empty
+    const { tracks, exitCode, error } = await extractTracks({ limit: options.limit });
+    
+    if (exitCode !== ExitCodes.SUCCESS) {
+      console.error(getErrorMessage(exitCode, error));
+      process.exit(exitCode);
+    }
+    
+    const uniqueArtists = normalizeArtistsFromTracks(tracks, {
+      fallbackAlbumArtist: true,
+      noTrim: options.noTrim,
+      sort: options.sort
+    });
+    
     writeSingleColumnCSV(outPath, uniqueArtists, 'artist');
     console.error(`Exported ${uniqueArtists.length} unique artists to ${outPath}`);
   }
