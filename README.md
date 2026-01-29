@@ -46,13 +46,13 @@ Pass any argument to use CLI mode directly:
 
 ```bash
 # Extract artists to stdout
-npx github:tzvister/apple-music-extract -- --type artists
+npx github:tzvister/apple-music-extract --type artists
 
 # Pipe to file
-npx github:tzvister/apple-music-extract -- --type artists > artists.csv
+npx github:tzvister/apple-music-extract --type artists > artists.csv
 
 # Write directly to file
-npx github:tzvister/apple-music-extract -- --out artists.csv
+npx github:tzvister/apple-music-extract --out artists.csv
 ```
 
 ## Requirements
