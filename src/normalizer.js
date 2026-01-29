@@ -78,16 +78,25 @@ export function normalizeArtists(rawArtists, options = {}) {
 
 /**
  * Normalize and deduplicate albums from track data
+ * Format: "Artist - Album" or just "Album" if no artist
  * @param {Object[]} tracks - Array of track objects with album property
  * @param {Object} options - Normalizer options
- * @returns {string[]} Array of unique album names
+ * @returns {string[]} Array of unique album entries
  */
 export function normalizeAlbums(tracks, options = {}) {
   const normalizer = createNormalizer(options);
   
   for (const track of tracks) {
     if (track.album) {
-      normalizer.add(track.album);
+      // Prefer album artist, fall back to track artist
+      const artist = (track.albumArtist || track.artist || '').trim();
+      const album = track.album.trim();
+      
+      if (artist) {
+        normalizer.add(`${artist} - ${album}`);
+      } else {
+        normalizer.add(album);
+      }
     }
   }
   
