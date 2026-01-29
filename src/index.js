@@ -21,7 +21,10 @@ import {
 } from './normalizer.js';
 import {
   writeSingleColumnCSV,
-  writeMultiColumnCSV
+  writeMultiColumnCSV,
+  writeToStdout,
+  generateSingleColumnData,
+  generateMultiColumnData
 } from './csv-writer.js';
 
 // Valid extraction types
@@ -153,19 +156,6 @@ function parseArgs(args) {
     }
   }
   
-  // Set default output filename based on type
-  if (!options.out) {
-    const defaultNames = {
-      artists: 'artists.csv',
-      albums: 'albums.csv',
-      tracks: 'tracks.csv',
-      playlists: 'playlists.csv',
-      'playlist-tracks': 'playlist-tracks.csv',
-      detailed: 'library.csv'
-    };
-    options.out = defaultNames[options.type];
-  }
-  
   return options;
 }
 
@@ -190,7 +180,7 @@ TYPES:
 
 OPTIONS:
   --type, -t <type>    Extraction type (default: artists)
-  --out, -o <path>     Output CSV file path
+  --out, -o <path>     Write to file instead of stdout
   --sort, -s           Sort output alphabetically
   --strict             Disable album artist fallback (artists type only)
   --help, -h           Show this help message
@@ -200,10 +190,11 @@ ADVANCED OPTIONS:
   --no-trim            Disable whitespace trimming (keeps leading/trailing spaces)
 
 EXAMPLES:
-  amlib-export                                    # Export artists to artists.csv
-  amlib-export --type albums --sort               # Export sorted albums
-  amlib-export --type detailed --out library.csv  # Export full track data
-  amlib-export help playlist-tracks               # Show help for playlist-tracks type
+  amlib-export                                    # Output artists to stdout
+  amlib-export --type albums --sort               # Output sorted albums to stdout
+  amlib-export --type artists > artists.csv       # Pipe to file
+  amlib-export --type detailed --out library.csv  # Write directly to file
+  amlib-export help playlist-tracks               # Show help for a type
 
 PERMISSIONS:
   On first run, macOS will prompt for Automation permission to control Music.app.
@@ -256,7 +247,8 @@ async function main() {
     process.exit(0);
   }
   
-  const outPath = path.resolve(options.out);
+  // outPath is null when outputting to stdout
+  const outPath = options.out ? path.resolve(options.out) : null;
   console.error(`Extracting ${options.type} from Music.app...`);
   
   try {
@@ -300,6 +292,8 @@ async function handleArtists(outPath, options) {
   // Default behavior: use album artist fallback (requires full track data)
   // --strict: only use track artist field (faster, uses simple extraction)
   
+  let uniqueArtists;
+  
   if (options.strict) {
     // Strict mode: only use track artist field
     const { artists, exitCode, error } = await extractArtists({ limit: options.limit });
@@ -314,9 +308,7 @@ async function handleArtists(outPath, options) {
       normalizer.add(artist);
     }
     
-    const uniqueArtists = normalizer.getUniqueValues();
-    writeSingleColumnCSV(outPath, uniqueArtists, 'artist');
-    console.error(`Exported ${uniqueArtists.length} unique artists to ${outPath}`);
+    uniqueArtists = normalizer.getUniqueValues();
   } else {
     // Default: use album artist fallback when track artist is empty
     const { tracks, exitCode, error } = await extractTracks({ limit: options.limit });
@@ -326,14 +318,19 @@ async function handleArtists(outPath, options) {
       process.exit(exitCode);
     }
     
-    const uniqueArtists = normalizeArtistsFromTracks(tracks, {
+    uniqueArtists = normalizeArtistsFromTracks(tracks, {
       fallbackAlbumArtist: true,
       noTrim: options.noTrim,
       sort: options.sort
     });
-    
+  }
+  
+  if (outPath) {
     writeSingleColumnCSV(outPath, uniqueArtists, 'artist');
     console.error(`Exported ${uniqueArtists.length} unique artists to ${outPath}`);
+  } else {
+    writeToStdout(generateSingleColumnData(uniqueArtists));
+    console.error(`Exported ${uniqueArtists.length} unique artists`);
   }
   
   process.exit(ExitCodes.SUCCESS);
@@ -355,8 +352,13 @@ async function handleAlbums(outPath, options) {
     sort: options.sort
   });
   
-  writeSingleColumnCSV(outPath, uniqueAlbums, 'album');
-  console.error(`Exported ${uniqueAlbums.length} unique albums to ${outPath}`);
+  if (outPath) {
+    writeSingleColumnCSV(outPath, uniqueAlbums, 'album');
+    console.error(`Exported ${uniqueAlbums.length} unique albums to ${outPath}`);
+  } else {
+    writeToStdout(generateSingleColumnData(uniqueAlbums));
+    console.error(`Exported ${uniqueAlbums.length} unique albums`);
+  }
   process.exit(ExitCodes.SUCCESS);
 }
 
@@ -376,8 +378,13 @@ async function handleTracks(outPath, options) {
     sort: options.sort
   });
   
-  writeSingleColumnCSV(outPath, uniqueTracks, 'track');
-  console.error(`Exported ${uniqueTracks.length} unique tracks to ${outPath}`);
+  if (outPath) {
+    writeSingleColumnCSV(outPath, uniqueTracks, 'track');
+    console.error(`Exported ${uniqueTracks.length} unique tracks to ${outPath}`);
+  } else {
+    writeToStdout(generateSingleColumnData(uniqueTracks));
+    console.error(`Exported ${uniqueTracks.length} unique tracks`);
+  }
   process.exit(ExitCodes.SUCCESS);
 }
 
@@ -397,8 +404,13 @@ async function handlePlaylists(outPath, options) {
     sort: options.sort
   });
   
-  writeSingleColumnCSV(outPath, uniquePlaylists, 'playlist');
-  console.error(`Exported ${uniquePlaylists.length} playlists to ${outPath}`);
+  if (outPath) {
+    writeSingleColumnCSV(outPath, uniquePlaylists, 'playlist');
+    console.error(`Exported ${uniquePlaylists.length} playlists to ${outPath}`);
+  } else {
+    writeToStdout(generateSingleColumnData(uniquePlaylists));
+    console.error(`Exported ${uniquePlaylists.length} playlists`);
+  }
   process.exit(ExitCodes.SUCCESS);
 }
 
@@ -414,9 +426,15 @@ async function handlePlaylistTracks(outPath, options) {
   }
   
   const prepared = preparePlaylistTracks(playlistTracks, { sort: options.sort });
+  const headers = ['playlist', 'track', 'artist'];
   
-  writeMultiColumnCSV(outPath, prepared, ['playlist', 'track', 'artist']);
-  console.error(`Exported ${prepared.length} playlist tracks to ${outPath}`);
+  if (outPath) {
+    writeMultiColumnCSV(outPath, prepared, headers);
+    console.error(`Exported ${prepared.length} playlist tracks to ${outPath}`);
+  } else {
+    writeToStdout(generateMultiColumnData(prepared, headers));
+    console.error(`Exported ${prepared.length} playlist tracks`);
+  }
   process.exit(ExitCodes.SUCCESS);
 }
 
@@ -432,9 +450,15 @@ async function handleDetailed(outPath, options) {
   }
   
   const prepared = prepareDetailedTracks(tracks, { sort: options.sort });
+  const headers = ['title', 'artist', 'album_artist', 'album'];
   
-  writeMultiColumnCSV(outPath, prepared, ['title', 'artist', 'album_artist', 'album']);
-  console.error(`Exported ${prepared.length} tracks to ${outPath}`);
+  if (outPath) {
+    writeMultiColumnCSV(outPath, prepared, headers);
+    console.error(`Exported ${prepared.length} tracks to ${outPath}`);
+  } else {
+    writeToStdout(generateMultiColumnData(prepared, headers));
+    console.error(`Exported ${prepared.length} tracks`);
+  }
   process.exit(ExitCodes.SUCCESS);
 }
 

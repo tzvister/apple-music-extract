@@ -1,7 +1,7 @@
 {
   "name": "amlib-export-artists",
   "version": "1.0.0",
-  "description": "Export unique artist names from Apple Music Library to CSV",
+  "description": "Export unique artist names from Apple Music Library",
   "type": "module",
   "bin": {
     "amlib-export-artists": "./src/index.js"
