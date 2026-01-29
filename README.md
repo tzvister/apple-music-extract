@@ -1,8 +1,25 @@
-# amlib-export
+# Apple Music Library Export
 
-A minimal macOS command-line tool that exports data from your Apple Music Library.
+> Free macOS CLI to export your Music.app library — artists, albums, playlists & tracks. No login required.
 
-**How it works:** The tool uses AppleScript to query Music.app for track metadata, then deduplicates and outputs CSV. No Apple ID or network access required.
+[![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white)](https://www.apple.com/macos/)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
+
+## Why Use This?
+
+- **Free & open source** — No subscription, no limits
+- **Works offline** — Queries your local Music.app directly via AppleScript
+- **Private** — No Apple ID login, no account creation, no data sent anywhere
+- **Flexible output** — Terminal, pipe to file, or write directly to CSV
+- **Interactive or scripted** — TUI for beginners, CLI flags for automation
+
+## Use Cases
+
+- **Backup** — Keep a local copy of your artist/playlist data
+- **Analysis** — Import into a spreadsheet to explore your library
+- **Migration** — Export data before switching services
+- **Sharing** — Send your playlist contents to a friend
 
 ## Quick Start
 
@@ -49,9 +66,9 @@ Pass any argument to use CLI mode directly:
 npx github:tzvister/apple-music-extract --type artists
 
 # Pipe to file
-npx github:tzvister/apple-music-extract --type artists > artists.csv
+npx github:tzvister/apple-music-extract --type artists > artists.txt
 
-# Write directly to file
+# Write directly to CSV file
 npx github:tzvister/apple-music-extract --out artists.csv
 ```
 
@@ -107,12 +124,12 @@ By default, output goes to **stdout**. Use `--out` to write to a file.
 
 | Type | Description | Output |
 |------|-------------|--------|
-| `artists` | Unique artist names (default) | Single-column CSV |
-| `albums` | Unique album names | Single-column CSV |
-| `tracks` | Unique track titles | Single-column CSV |
-| `playlists` | Playlist names only | Single-column CSV |
-| `playlist-tracks` | Playlists with their tracks | Multi-column CSV |
-| `detailed` | Full track metadata | Multi-column CSV |
+| `artists` | Unique artist names (default) | Single column |
+| `albums` | Unique album names | Single column |
+| `tracks` | Unique track titles | Single column |
+| `playlists` | Playlist names only | Single column |
+| `playlist-tracks` | Playlists with their tracks | Multi-column |
+| `detailed` | Full track metadata | Multi-column |
 
 ### Options
 
@@ -147,9 +164,9 @@ amlib-export
 amlib-export --type albums --sort
 
 # Pipe to file
-amlib-export --type artists > artists.csv
+amlib-export --type artists > artists.txt
 
-# Write directly to file
+# Write directly to CSV file
 amlib-export --type detailed --out library.csv
 
 # Get help for a specific type
@@ -158,7 +175,7 @@ amlib-export help playlist-tracks
 
 ## Output Formats
 
-**Note:** When outputting to stdout, only data is shown (no headers). CSV files include capitalized headers.
+**Note:** When outputting to stdout, only data is shown (no headers). Files include capitalized headers.
 
 ### Single-column (artists, albums, tracks, playlists)
 
