@@ -1,6 +1,6 @@
 {
   "name": "amlib-export-artists",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Export unique artist names from Apple Music Library",
   "type": "module",
   "bin": {
