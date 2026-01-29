@@ -4,7 +4,14 @@ import { createInterface } from 'node:readline';
 import path from 'node:path';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const SCRIPT_PATH = path.join(__dirname, '../scripts/extract-artists.applescript');
+
+// Script paths
+const SCRIPTS = {
+  artists: path.join(__dirname, '../scripts/extract-artists.applescript'),
+  tracks: path.join(__dirname, '../scripts/extract-tracks.applescript'),
+  playlists: path.join(__dirname, '../scripts/extract-playlists.applescript'),
+  playlistTracks: path.join(__dirname, '../scripts/extract-playlist-tracks.applescript')
+};
 
 /**
  * Error codes for extraction failures
@@ -83,25 +90,23 @@ If you don't see Terminal listed, run the command once to trigger the prompt.`;
 }
 
 /**
- * Extract artists from Music.app library
- * @param {Object} options - Extraction options
- * @param {number} [options.limit] - Maximum number of lines to process
- * @param {function} [options.onArtist] - Callback for each artist line
- * @returns {Promise<{artists: string[], exitCode: number, error?: string}>}
+ * Run an AppleScript and collect output lines
+ * @param {string} scriptPath - Path to the AppleScript file
+ * @param {Object} options - Options
+ * @returns {Promise<{lines: string[], exitCode: number, error?: string}>}
  */
-export function extractArtists(options = {}) {
+function runAppleScript(scriptPath, options = {}) {
   return new Promise((resolve) => {
-    const { limit, onArtist } = options;
-    const artists = [];
+    const { limit, onLine } = options;
+    const lines = [];
     let stderr = '';
     let lineCount = 0;
     let limitReached = false;
     
-    const proc = spawn('osascript', [SCRIPT_PATH], {
+    const proc = spawn('osascript', [scriptPath], {
       stdio: ['ignore', 'pipe', 'pipe']
     });
     
-    // Create readline interface for line-by-line processing
     const rl = createInterface({
       input: proc.stdout,
       crlfDelay: Infinity
@@ -111,10 +116,10 @@ export function extractArtists(options = {}) {
       if (limitReached) return;
       
       lineCount++;
-      artists.push(line);
+      lines.push(line);
       
-      if (onArtist) {
-        onArtist(line, lineCount);
+      if (onLine) {
+        onLine(line, lineCount);
       }
       
       if (limit && lineCount >= limit) {
@@ -129,30 +134,97 @@ export function extractArtists(options = {}) {
     });
     
     proc.on('close', (code) => {
-      // If we killed it due to limit, that's success
       if (limitReached) {
-        resolve({ artists, exitCode: ExitCodes.SUCCESS });
+        resolve({ lines, exitCode: ExitCodes.SUCCESS });
         return;
       }
       
-      // osascript returns 0 on success
       if (code === 0) {
-        resolve({ artists, exitCode: ExitCodes.SUCCESS });
+        resolve({ lines, exitCode: ExitCodes.SUCCESS });
         return;
       }
       
-      // Determine error type from stderr
       const exitCode = detectErrorType(stderr);
-      resolve({ artists, exitCode, error: stderr.trim() });
+      resolve({ lines, exitCode, error: stderr.trim() });
     });
     
     proc.on('error', (err) => {
-      // spawn error (e.g., osascript not found - unlikely on macOS)
       resolve({
-        artists,
+        lines,
         exitCode: ExitCodes.APPLESCRIPT_ERROR,
         error: err.message
       });
     });
   });
+}
+
+/**
+ * Extract artists from Music.app library (original behavior)
+ * @param {Object} options - Extraction options
+ * @returns {Promise<{artists: string[], exitCode: number, error?: string}>}
+ */
+export async function extractArtists(options = {}) {
+  const result = await runAppleScript(SCRIPTS.artists, options);
+  return { artists: result.lines, exitCode: result.exitCode, error: result.error };
+}
+
+/**
+ * Extract full track data from Music.app library
+ * @param {Object} options - Extraction options
+ * @returns {Promise<{tracks: Object[], exitCode: number, error?: string}>}
+ */
+export async function extractTracks(options = {}) {
+  const result = await runAppleScript(SCRIPTS.tracks, options);
+  
+  if (result.exitCode !== ExitCodes.SUCCESS) {
+    return { tracks: [], exitCode: result.exitCode, error: result.error };
+  }
+  
+  // Parse the delimited format: title|||artist|||album_artist|||album
+  const tracks = result.lines.map(line => {
+    const [title, artist, albumArtist, album] = line.split('|||');
+    return {
+      title: title || '',
+      artist: artist || '',
+      albumArtist: albumArtist || '',
+      album: album || ''
+    };
+  });
+  
+  return { tracks, exitCode: ExitCodes.SUCCESS };
+}
+
+/**
+ * Extract playlist names from Music.app
+ * @param {Object} options - Extraction options
+ * @returns {Promise<{playlists: string[], exitCode: number, error?: string}>}
+ */
+export async function extractPlaylists(options = {}) {
+  const result = await runAppleScript(SCRIPTS.playlists, options);
+  return { playlists: result.lines, exitCode: result.exitCode, error: result.error };
+}
+
+/**
+ * Extract playlists with their tracks from Music.app
+ * @param {Object} options - Extraction options
+ * @returns {Promise<{playlistTracks: Object[], exitCode: number, error?: string}>}
+ */
+export async function extractPlaylistTracks(options = {}) {
+  const result = await runAppleScript(SCRIPTS.playlistTracks, options);
+  
+  if (result.exitCode !== ExitCodes.SUCCESS) {
+    return { playlistTracks: [], exitCode: result.exitCode, error: result.error };
+  }
+  
+  // Parse the delimited format: playlist|||track|||artist
+  const playlistTracks = result.lines.map(line => {
+    const [playlist, track, artist] = line.split('|||');
+    return {
+      playlist: playlist || '',
+      track: track || '',
+      artist: artist || ''
+    };
+  });
+  
+  return { playlistTracks, exitCode: ExitCodes.SUCCESS };
 }

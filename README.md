@@ -1,8 +1,8 @@
-# amlib-export-artists
+# amlib-export
 
-A minimal macOS command-line tool that exports unique artist names from your Apple Music Library to a CSV file.
+A minimal macOS command-line tool that exports data from your Apple Music Library to CSV files.
 
-**How it works:** The tool uses AppleScript to ask Music.app for the artist name of every track in your library, then deduplicates and exports to CSV. No Apple ID or network access required.
+**How it works:** The tool uses AppleScript to query Music.app for track metadata, then deduplicates and exports to CSV. No Apple ID or network access required.
 
 ## Quick Start
 
@@ -14,10 +14,10 @@ If you have Node.js installed, just run:
 npx github:tzvister/apple-music-extract
 ```
 
-This downloads and runs the tool in one command. Add `--sort` to sort alphabetically:
+This downloads and runs the tool in one command. Add options as needed:
 
 ```bash
-npx github:tzvister/apple-music-extract -- --sort --out ~/Desktop/artists.csv
+npx github:tzvister/apple-music-extract -- --type albums --sort --out ~/Desktop/albums.csv
 ```
 
 ### Option 2: Download and run single file
@@ -39,27 +39,66 @@ That's it! The file is completely self-contained with no dependencies.
 ## Usage
 
 ```
-node amlib-export-artists.js [OPTIONS]
-
-OPTIONS:
-  --out, -o <path>    Output CSV file path (default: artists.csv)
-  --sort, -s          Sort artists alphabetically
-  --help, -h          Show help message
+node amlib-export-artists.js [--type TYPE] [OPTIONS]
+node amlib-export-artists.js help [TYPE]
 ```
+
+### Extraction Types
+
+| Type | Description | Output |
+|------|-------------|--------|
+| `artists` | Unique artist names (default) | Single-column CSV |
+| `albums` | Unique album names | Single-column CSV |
+| `tracks` | Unique track titles | Single-column CSV |
+| `playlists` | Playlist names only | Single-column CSV |
+| `playlist-tracks` | Playlists with their tracks | Multi-column CSV |
+| `detailed` | Full track metadata | Multi-column CSV |
+
+### Options
+
+```
+--type, -t <type>    Extraction type (default: artists)
+--out, -o <path>     Output CSV file path
+--sort, -s           Sort output alphabetically
+--strict             Disable album artist fallback (see below)
+--help, -h           Show help message
+```
+
+**Advanced options:**
+
+```
+--limit, -l <N>      Stop after N items (for debugging large libraries)
+--no-trim            Keep leading/trailing whitespace in values
+```
+
+### Artist Extraction Behavior
+
+When extracting artists (`--type artists`), the tool automatically uses the **album artist** as a fallback when a track's artist field is empty. This is useful for compilation albums where individual tracks may not have an artist set.
+
+Use `--strict` if you only want the exact track artist field (no fallback).
 
 ### Examples
 
 ```bash
-# Export to artists.csv in current directory
+# Export unique artists (default)
 node amlib-export-artists.js
 
-# Export sorted to Desktop
-node amlib-export-artists.js --out ~/Desktop/my-artists.csv --sort
+# Export sorted albums
+node amlib-export-artists.js --type albums --sort
+
+# Export full track data
+node amlib-export-artists.js --type detailed --out library.csv
+
+# Export playlists with their tracks
+node amlib-export-artists.js --type playlist-tracks --sort
+
+# Get help for a specific type
+node amlib-export-artists.js help playlist-tracks
 ```
 
-## Output Format
+## Output Formats
 
-The output is a CSV file with UTF-8 encoding:
+### Single-column (artists, albums, tracks, playlists)
 
 ```csv
 artist
@@ -68,9 +107,20 @@ The Beatles
 Beyoncé
 ```
 
-- One artist per row
-- Deduplicated (case-insensitive)
-- Special characters properly escaped
+### Playlist tracks
+
+```csv
+playlist,track,artist
+Chill Vibes,Weightless,Marconi Union
+Chill Vibes,Sunset Lover,Petit Biscuit
+```
+
+### Detailed
+
+```csv
+title,artist,album_artist,album
+Bohemian Rhapsody,Queen,Queen,A Night at the Opera
+```
 
 ## Permissions
 
