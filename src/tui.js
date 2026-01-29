@@ -4,6 +4,7 @@ import { select, confirm, input, checkbox } from '@inquirer/prompts';
 import chalk from 'chalk';
 import ora from 'ora';
 import path from 'node:path';
+import { runAllChecks } from './system-check.js';
 import {
   extractArtists,
   extractTracks,
@@ -85,6 +86,15 @@ function printHeader() {
  */
 async function main() {
   printHeader();
+
+  // Run system checks
+  const systemCheck = runAllChecks();
+  if (!systemCheck.ok) {
+    console.log(chalk.red('  System Check Failed\n'));
+    console.log(chalk.dim(`  ${systemCheck.message.split('\n').join('\n  ')}`));
+    console.log('');
+    process.exit(1);
+  }
 
   // Step 1: Select extraction type
   const type = await select({
@@ -359,11 +369,23 @@ function writeOutput(type, data, outPath, options) {
  */
 export { main as runTUI };
 
+/**
+ * Handle errors gracefully
+ */
+function handleError(err) {
+  // User cancelled with Ctrl+C or Escape
+  if (err.name === 'ExitPromptError' || err.message?.includes('User force closed')) {
+    console.log(chalk.dim('\n  Cancelled.\n'));
+    process.exit(0);
+  }
+  
+  // Other errors
+  console.error(chalk.red(`\nError: ${err.message}`));
+  process.exit(1);
+}
+
 // Run directly if called as script
 const isDirectRun = process.argv[1]?.endsWith('tui.js');
 if (isDirectRun) {
-  main().catch((err) => {
-    console.error(chalk.red(`\nError: ${err.message}`));
-    process.exit(1);
-  });
+  main().catch(handleError);
 }

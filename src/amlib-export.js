@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import path from 'node:path';
+import { runAllChecks } from './system-check.js';
 import {
   extractArtists,
   extractTracks,
@@ -255,6 +256,13 @@ async function main() {
     process.exit(0);
   }
   
+  // Run system checks before proceeding
+  const systemCheck = runAllChecks();
+  if (!systemCheck.ok) {
+    console.error(systemCheck.message);
+    process.exit(1);
+  }
+  
   // outPath is null when outputting to stdout
   const outPath = options.out ? path.resolve(options.out) : null;
   console.error(`Extracting ${options.type} from Music.app...`);
@@ -473,6 +481,12 @@ async function handleDetailed(outPath, options) {
 
 // Run
 main().catch((err) => {
+  // User cancelled with Ctrl+C
+  if (err.name === 'ExitPromptError' || err.message?.includes('User force closed')) {
+    console.error('\nCancelled.');
+    process.exit(0);
+  }
+  
   console.error(`Unexpected error: ${err.message}`);
   process.exit(1);
 });
