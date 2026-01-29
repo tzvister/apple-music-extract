@@ -89,11 +89,19 @@ async function main() {
   // Step 1: Select extraction type
   const type = await select({
     message: 'What would you like to export?',
-    choices: Object.entries(TYPES).map(([value, info]) => ({
-      name: `${info.name} - ${chalk.dim(info.description)}`,
-      value
-    }))
+    choices: [
+      ...Object.entries(TYPES).map(([value, info]) => ({
+        name: `${info.name} - ${chalk.dim(info.description)}`,
+        value
+      })),
+      { name: chalk.dim('Exit'), value: 'exit' }
+    ]
   });
+
+  if (type === 'exit') {
+    console.log(chalk.dim('\n  Goodbye!\n'));
+    process.exit(0);
+  }
 
   // Step 2: Type-specific options
   const options = { sort: false, strict: false, selectedPlaylists: null };
