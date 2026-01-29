@@ -6,8 +6,6 @@ A minimal macOS command-line tool that exports data from your Apple Music Librar
 
 ## Quick Start
 
-### Option 1: Run with npx (easiest)
-
 If you have Node.js installed, just run:
 
 ```bash
@@ -20,27 +18,32 @@ This downloads and runs the tool in one command. Add options as needed:
 npx github:tzvister/apple-music-extract -- --type albums --sort --out ~/Desktop/albums.csv
 ```
 
-### Option 2: Download and run single file
-
-1. Download `amlib-export-artists.js` from this repo
-2. Run it with Node.js:
-
-```bash
-node amlib-export-artists.js
-```
-
-That's it! The file is completely self-contained with no dependencies.
-
 ## Requirements
 
 - macOS (uses Music.app)
 - Node.js 18 or later
 
+## Installation (optional)
+
+To install globally:
+
+```bash
+git clone https://github.com/tzvister/apple-music-extract.git
+cd apple-music-extract
+npm install -g .
+```
+
+Then run from anywhere:
+
+```bash
+amlib-export-artists --type artists --sort
+```
+
 ## Usage
 
 ```
-node amlib-export-artists.js [--type TYPE] [OPTIONS]
-node amlib-export-artists.js help [TYPE]
+amlib-export-artists [--type TYPE] [OPTIONS]
+amlib-export-artists help [TYPE]
 ```
 
 ### Extraction Types
@@ -81,19 +84,19 @@ Use `--strict` if you only want the exact track artist field (no fallback).
 
 ```bash
 # Export unique artists (default)
-node amlib-export-artists.js
+amlib-export-artists
 
 # Export sorted albums
-node amlib-export-artists.js --type albums --sort
+amlib-export-artists --type albums --sort
 
 # Export full track data
-node amlib-export-artists.js --type detailed --out library.csv
+amlib-export-artists --type detailed --out library.csv
 
 # Export playlists with their tracks
-node amlib-export-artists.js --type playlist-tracks --sort
+amlib-export-artists --type playlist-tracks --sort
 
 # Get help for a specific type
-node amlib-export-artists.js help playlist-tracks
+amlib-export-artists help playlist-tracks
 ```
 
 ## Output Formats
