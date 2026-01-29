@@ -1,13 +1,14 @@
 import { writeFileSync } from 'node:fs';
 import chalk from 'chalk';
 
-// Consistent color scheme for column types (softer palette)
+// Consistent color scheme for column types
+// Mid-saturation colors that work on both light and dark terminals
 const COLUMN_COLORS = {
-  artist: chalk.hex('#C9A0DC'),   // soft lavender
-  album: chalk.hex('#F0C674'),    // soft gold
-  track: chalk.hex('#8ABEB7'),    // soft teal
-  playlist: chalk.hex('#81A2BE'), // soft blue
-  title: chalk.hex('#8ABEB7'),    // alias for track
+  artist: chalk.hex('#B877DB'),   // medium purple
+  album: chalk.hex('#D19A66'),    // warm amber
+  track: chalk.hex('#56B6C2'),    // medium teal
+  playlist: chalk.hex('#61AFEF'), // medium blue
+  title: chalk.hex('#56B6C2'),    // alias for track
   // Separator color
   separator: chalk.dim
 };
