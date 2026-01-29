@@ -6,19 +6,26 @@ A minimal macOS command-line tool that exports data from your Apple Music Librar
 
 ## Quick Start
 
-If you have Node.js installed, just run:
+Run with no arguments to launch the **interactive TUI**:
 
 ```bash
 npx github:tzvister/apple-music-extract
 ```
 
-This outputs your unique artists to stdout. Pipe to a file or use `--out`:
+The TUI guides you through selecting extraction type, options, and output destination.
+
+### Command Line Mode
+
+Pass any argument to use CLI mode directly:
 
 ```bash
-# Pipe to file
-npx github:tzvister/apple-music-extract > artists.csv
+# Extract artists to stdout
+npx github:tzvister/apple-music-extract -- --type artists
 
-# Or write directly to file
+# Pipe to file
+npx github:tzvister/apple-music-extract -- --type artists > artists.csv
+
+# Write directly to file
 npx github:tzvister/apple-music-extract -- --out artists.csv
 ```
 
@@ -27,27 +34,45 @@ npx github:tzvister/apple-music-extract -- --out artists.csv
 - macOS (uses Music.app)
 - Node.js 18 or later
 
-## Installation (optional)
+## Local Development
 
-To install globally:
+Clone and run without installing globally:
 
 ```bash
 git clone https://github.com/tzvister/apple-music-extract.git
 cd apple-music-extract
+npm install
+
+# Run TUI
+npm start
+
+# Or directly
+node src/amlib-export.js
+
+# CLI mode
+node src/amlib-export.js --type artists --sort
+```
+
+## Global Installation (optional)
+
+To install globally and use from anywhere:
+
+```bash
 npm install -g .
 ```
 
-Then run from anywhere:
+Then run:
 
 ```bash
-amlib-export-artists --type artists --sort
+amlib-export              # Launch interactive TUI
+amlib-export --type artists --sort   # CLI mode
 ```
 
 ## Usage
 
 ```
-amlib-export-artists [--type TYPE] [OPTIONS]
-amlib-export-artists help [TYPE]
+amlib-export [--type TYPE] [OPTIONS]
+amlib-export help [TYPE]
 ```
 
 By default, output goes to **stdout**. Use `--out` to write to a file.
@@ -90,27 +115,37 @@ Use `--strict` if you only want the exact track artist field (no fallback).
 
 ```bash
 # Output artists to stdout
-amlib-export-artists
+amlib-export
 
 # Output sorted albums to stdout
-amlib-export-artists --type albums --sort
+amlib-export --type albums --sort
 
 # Pipe to file
-amlib-export-artists --type artists > artists.csv
+amlib-export --type artists > artists.csv
 
 # Write directly to file
-amlib-export-artists --type detailed --out library.csv
+amlib-export --type detailed --out library.csv
 
 # Get help for a specific type
-amlib-export-artists help playlist-tracks
+amlib-export help playlist-tracks
 ```
 
 ## Output Formats
 
+**Note:** When outputting to stdout, only data is shown (no headers). CSV files include capitalized headers.
+
 ### Single-column (artists, albums, tracks, playlists)
 
+Stdout:
+```
+Taylor Swift
+The Beatles
+Beyoncé
+```
+
+CSV file:
 ```csv
-artist
+Artist
 Taylor Swift
 The Beatles
 Beyoncé
@@ -118,16 +153,29 @@ Beyoncé
 
 ### Playlist tracks
 
+Stdout:
+```
+Chill Vibes,Weightless,Marconi Union
+Chill Vibes,Sunset Lover,Petit Biscuit
+```
+
+CSV file:
 ```csv
-playlist,track,artist
+Playlist,Track,Artist
 Chill Vibes,Weightless,Marconi Union
 Chill Vibes,Sunset Lover,Petit Biscuit
 ```
 
 ### Detailed
 
+Stdout:
+```
+Bohemian Rhapsody,Queen,Queen,A Night at the Opera
+```
+
+CSV file:
 ```csv
-title,artist,album_artist,album
+Title,Artist,Album Artist,Album
 Bohemian Rhapsody,Queen,Queen,A Night at the Opera
 ```
 

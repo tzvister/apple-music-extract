@@ -235,6 +235,14 @@ EXAMPLE:
  */
 async function main() {
   const args = process.argv.slice(2);
+  
+  // Launch TUI if no arguments provided
+  if (args.length === 0) {
+    const { runTUI } = await import('./tui.js');
+    await runTUI();
+    return;
+  }
+  
   const options = parseArgs(args);
   
   // Handle help

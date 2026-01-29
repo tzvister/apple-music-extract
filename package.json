@@ -4,13 +4,14 @@
   "description": "Export unique artist names from Apple Music Library",
   "type": "module",
   "bin": {
-    "amlib-export-artists": "./src/index.js"
+    "amlib-export": "./src/amlib-export.js"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/amlib-export.js",
+    "tui": "node src/tui.js"
   },
   "keywords": [
     "apple-music",
@@ -21,5 +22,10 @@
     "macos"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@inquirer/prompts": "^8.2.0",
+    "chalk": "^5.6.2",
+    "ora": "^9.1.0"
+  }
 }
