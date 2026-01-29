@@ -185,6 +185,7 @@ async function main() {
 
   // Step 4: Execute extraction
   console.log('');
+  console.log(chalk.dim('  This may take a moment for large libraries...\n'));
   const spinner = ora({
     text: `Extracting ${TYPES[type].name.toLowerCase()}...`,
     color: 'cyan'

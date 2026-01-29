@@ -258,6 +258,7 @@ async function main() {
   // outPath is null when outputting to stdout
   const outPath = options.out ? path.resolve(options.out) : null;
   console.error(`Extracting ${options.type} from Music.app...`);
+  console.error('This may take a moment for large libraries...');
   
   try {
     switch (options.type) {
