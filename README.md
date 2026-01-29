@@ -2,6 +2,8 @@
 
 > Free macOS CLI to export your Music.app library — artists, albums, playlists & tracks. No login required.
 
+![Apple Music Library Export](Apple%20Music%20Export.png)
+
 [![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white)](https://www.apple.com/macos/)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
