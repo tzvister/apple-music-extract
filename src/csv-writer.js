@@ -173,11 +173,35 @@ export function writeToStdout(content) {
 
 /**
  * Generate colorized single-column data for terminal display
+ * Handles compound formats like "Artist - Album" and "Artist - Track"
  * @param {string[]} values - Array of values
  * @param {string} columnType - The column type (artist, album, track, playlist)
  * @returns {string} Colorized output
  */
 export function generateColorizedSingleColumn(values, columnType) {
+  const separator = COLUMN_COLORS.separator(' · ');
+  
+  // For album and track types, values are "Artist - Album" or "Artist - Track"
+  // Parse and colorize each part separately
+  if (columnType === 'album' || columnType === 'track') {
+    const rows = values.map(v => {
+      const dashIndex = v.indexOf(' - ');
+      if (dashIndex > -1) {
+        const artist = v.substring(0, dashIndex);
+        const second = v.substring(dashIndex + 3); // Skip " - "
+        const artistColored = COLUMN_COLORS.artist(artist);
+        const secondColored = columnType === 'album' 
+          ? COLUMN_COLORS.album(second)
+          : COLUMN_COLORS.track(second);
+        return artistColored + separator + secondColored;
+      }
+      // No dash, just colorize as the column type
+      return getColumnColor(columnType)(v);
+    });
+    return rows.join('\n') + '\n';
+  }
+  
+  // Simple single-value columns (artist, playlist)
   const colorFn = getColumnColor(columnType);
   const rows = values.map(v => colorFn(v));
   return rows.join('\n') + '\n';
