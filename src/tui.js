@@ -115,7 +115,7 @@ async function runExportFlow(isFirstRun) {
   }
 
   // Step 2: Type-specific options
-  const options = { sort: false, strict: false, selectedPlaylists: null };
+  const options = { sort: true, strict: false, selectedPlaylists: null };
 
   if (type === 'artists') {
     options.strict = !(await confirm({
@@ -169,11 +169,6 @@ async function runExportFlow(isFirstRun) {
       throw err;
     }
   }
-
-  options.sort = await confirm({
-    message: 'Sort results alphabetically?',
-    default: true
-  });
 
   // Step 3: Output destination
   const outputChoice = await select({

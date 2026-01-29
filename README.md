@@ -90,7 +90,7 @@ npm install
 ./amlib
 
 # CLI mode
-./amlib --type artists --sort
+./amlib --type artists
 ```
 
 ## Global Installation (optional)
@@ -105,7 +105,7 @@ Then run:
 
 ```bash
 amlib-export              # Launch interactive TUI
-amlib-export --type artists --sort   # CLI mode
+amlib-export --type artists          # CLI mode
 ```
 
 ## Usage
@@ -133,7 +133,6 @@ By default, output goes to **stdout**. Use `--out` to write to a file.
 ```
 --type, -t <type>    Extraction type (default: artists)
 --out, -o <path>     Write to file instead of stdout
---sort, -s           Sort output alphabetically
 --strict             Disable album artist fallback (see below)
 --help, -h           Show help message
 ```
@@ -157,8 +156,8 @@ Use `--strict` if you only want the exact track artist field (no fallback).
 # Output artists to stdout
 amlib-export
 
-# Output sorted albums to stdout
-amlib-export --type albums --sort
+# Output albums to stdout
+amlib-export --type albums
 
 # Pipe to file
 amlib-export --type artists > artists.txt

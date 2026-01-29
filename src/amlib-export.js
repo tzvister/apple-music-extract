@@ -37,38 +37,38 @@ const VALID_TYPES = ['artists', 'albums', 'tracks', 'playlists', 'playlist-track
 const TYPE_HELP = {
   artists: {
     description: 'Extract unique artist names from your library. Uses album artist as fallback when track artist is empty.',
-    output: 'Single-column CSV with header "artist"',
-    flags: ['--sort', '--out', '--strict'],
-    example: 'amlib-export --type artists --sort --out artists.csv'
+    output: 'Single-column CSV with header "Artist"',
+    flags: ['--out', '--strict'],
+    example: 'amlib-export --type artists --out artists.csv'
   },
   albums: {
     description: 'Extract unique album names from your library',
-    output: 'Single-column CSV with header "album"',
-    flags: ['--sort', '--out'],
-    example: 'amlib-export --type albums --sort --out albums.csv'
+    output: 'Single-column CSV with header "Album"',
+    flags: ['--out'],
+    example: 'amlib-export --type albums --out albums.csv'
   },
   tracks: {
     description: 'Extract unique track titles from your library',
-    output: 'Single-column CSV with header "track"',
-    flags: ['--sort', '--out'],
+    output: 'Single-column CSV with header "Track"',
+    flags: ['--out'],
     example: 'amlib-export --type tracks --out tracks.csv'
   },
   playlists: {
     description: 'Extract playlist names from your library',
-    output: 'Single-column CSV with header "playlist"',
-    flags: ['--sort', '--out'],
+    output: 'Single-column CSV with header "Playlist"',
+    flags: ['--out'],
     example: 'amlib-export --type playlists --out playlists.csv'
   },
   'playlist-tracks': {
     description: 'Extract playlists with their track listings',
-    output: 'Multi-column CSV with headers: playlist, track, artist',
-    flags: ['--sort', '--out'],
+    output: 'Multi-column CSV with headers: Playlist, Artist, Album, Track',
+    flags: ['--out'],
     example: 'amlib-export --type playlist-tracks --out playlist-tracks.csv'
   },
   detailed: {
     description: 'Extract full track data with all metadata',
-    output: 'Multi-column CSV with headers: title, artist, album_artist, album',
-    flags: ['--sort', '--out'],
+    output: 'Multi-column CSV with headers: Artist, Album, Track',
+    flags: ['--out'],
     example: 'amlib-export --type detailed --out library.csv'
   }
 };
@@ -82,7 +82,7 @@ function parseArgs(args) {
   const options = {
     type: 'artists',
     out: null,
-    sort: false,
+    sort: true,
     limit: null,
     noTrim: false,
     strict: false,  // When true, disables album artist fallback
@@ -121,11 +121,6 @@ function parseArgs(args) {
           console.error('Error: --out requires a file path argument');
           process.exit(1);
         }
-        break;
-      
-      case '--sort':
-      case '-s':
-        options.sort = true;
         break;
       
       case '--limit':
@@ -184,7 +179,6 @@ TYPES:
 OPTIONS:
   --type, -t <type>    Extraction type (default: artists)
   --out, -o <path>     Write to file instead of stdout
-  --sort, -s           Sort output alphabetically
   --strict             Disable album artist fallback (artists type only)
   --help, -h           Show this help message
 
@@ -194,7 +188,7 @@ ADVANCED OPTIONS:
 
 EXAMPLES:
   amlib-export                                    # Output artists to stdout
-  amlib-export --type albums --sort               # Output sorted albums to stdout
+  amlib-export --type albums                      # Output albums to stdout
   amlib-export --type artists > artists.csv       # Pipe to file
   amlib-export --type detailed --out library.csv  # Write directly to file
   amlib-export help playlist-tracks               # Show help for a type
