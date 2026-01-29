@@ -77,9 +77,9 @@ npx github:tzvister/apple-music-extract --out artists.csv
 - macOS (uses Music.app)
 - Node.js 18 or later
 
-## Local Development
+## Local Installation
 
-Clone and run without installing globally:
+Clone and run:
 
 ```bash
 git clone https://github.com/tzvister/apple-music-extract.git
@@ -87,13 +87,10 @@ cd apple-music-extract
 npm install
 
 # Run TUI
-npm start
-
-# Or directly
-node src/amlib-export.js
+./amlib
 
 # CLI mode
-node src/amlib-export.js --type artists --sort
+./amlib --type artists --sort
 ```
 
 ## Global Installation (optional)

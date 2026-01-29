@@ -1,0 +1,6 @@
+#!/bin/bash
+# Apple Music Library Export - Quick launcher
+# Usage: ./amlib [options]
+
+cd "$(dirname "$0")"
+node src/amlib-export.js "$@"
