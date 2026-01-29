@@ -14,6 +14,32 @@ npx github:tzvister/apple-music-extract
 
 The TUI guides you through selecting extraction type, options, and output destination.
 
+```
+  🎵 Apple Music Library Export
+  ─────────────────────────────────
+
+? What would you like to export?
+❯ Artists - Unique artist names from your library
+  Albums - Unique album names
+  Tracks - All track titles
+  Playlists - Playlist names only
+  Playlist Tracks - Playlists with their track listings
+  Detailed - Full track metadata (title, artist, album artist, album)
+```
+
+When exporting **Playlist Tracks**, you can select specific playlists:
+
+```
+✔ Found 12 playlists
+
+? Select playlists to export:
+◉ All playlists
+◯ Chill Vibes
+◉ Workout Mix
+◯ Road Trip
+◉ Focus Time
+```
+
 ### Command Line Mode
 
 Pass any argument to use CLI mode directly:
