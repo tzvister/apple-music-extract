@@ -84,20 +84,19 @@ function printHeader() {
 }
 
 /**
- * Main TUI flow
+ * Print a smaller header for subsequent runs
  */
-async function main() {
-  printHeader();
+function printMenuHeader() {
+  console.log('');
+  console.log(chalk.dim('  ─────────────────────────────────'));
+  console.log('');
+}
 
-  // Run system checks
-  const systemCheck = runAllChecks();
-  if (!systemCheck.ok) {
-    console.log(chalk.red('  System Check Failed\n'));
-    console.log(chalk.dim(`  ${systemCheck.message.split('\n').join('\n  ')}`));
-    console.log('');
-    process.exit(1);
-  }
-
+/**
+ * Run a single export flow
+ * @returns {Promise<boolean>} true to continue, false to exit
+ */
+async function runExportFlow(isFirstRun) {
   // Step 1: Select extraction type
   const type = await select({
     message: 'What would you like to export?',
@@ -112,7 +111,7 @@ async function main() {
 
   if (type === 'exit') {
     console.log(chalk.dim('\n  Goodbye!\n'));
-    process.exit(0);
+    return false;
   }
 
   // Step 2: Type-specific options
@@ -154,8 +153,8 @@ async function main() {
       });
 
       if (selectedPlaylists.length === 0) {
-        console.log(chalk.yellow('\nNo playlists selected. Exiting.'));
-        process.exit(0);
+        console.log(chalk.yellow('\n  No playlists selected.\n'));
+        return true; // Continue to menu
       }
 
       // If "All playlists" is selected, don't filter
@@ -219,7 +218,40 @@ async function main() {
     console.log('');
   } catch (err) {
     spinner.fail(chalk.red(`Error: ${err.message}`));
+    console.log('');
+  }
+
+  return true; // Continue to menu
+}
+
+/**
+ * Main TUI flow
+ */
+async function main() {
+  printHeader();
+
+  // Run system checks
+  const systemCheck = runAllChecks();
+  if (!systemCheck.ok) {
+    console.log(chalk.red('  System Check Failed\n'));
+    console.log(chalk.dim(`  ${systemCheck.message.split('\n').join('\n  ')}`));
+    console.log('');
     process.exit(1);
+  }
+
+  // Main loop - keep running until user exits
+  let isFirstRun = true;
+  while (true) {
+    if (!isFirstRun) {
+      printMenuHeader();
+    }
+    
+    const shouldContinue = await runExportFlow(isFirstRun);
+    if (!shouldContinue) {
+      break;
+    }
+    
+    isFirstRun = false;
   }
 }
 
